@@ -1,0 +1,46 @@
+{
+  "name": "grpc-lerobot",
+  "build": {
+    "dockerfile": "../client/docker/Dockerfile",
+    "context": ".."
+  },
+  "containerUser": "root",
+  "containerEnv": {
+    "DISPLAY": "${localEnv:DISPLAY}",
+    "PYTHONPATH": "/workspace/grpc:/usr/lib/python3/dist-packages:${containerEnv:PYTHONPATH}"
+  },
+  "workspaceFolder": "/workspace",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+  "runArgs": [
+    "--name", "grpc-lerobot",
+    "--shm-size=16g",
+    "--network=host",
+    "--privileged",
+    "--ipc=host",
+    "-v", "/dev/bus/usb:/dev/bus/usb",
+    "--ulimit", "memlock=-1",
+    "--ulimit", "stack=67108864"
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-toolsai.jupyter",
+        "ms-toolsai.jupyter-keymap",
+        "ms-toolsai.jupyter-renderers",
+        "vscode-icons-team.vscode-icons",
+        "ms-python.black-formatter",
+        "ms-toolsai.vscode-jupyter-cell-tags",
+        "ms-toolsai.vscode-jupyter-slideshow",
+        "ExecutableBookProject.myst-highlight",
+        "ms-python.debugpy"
+      ],
+      "settings": {
+        "python.pythonPath": "/lerobot/.venv/bin/python",
+        "python.defaultInterpreterPath": "/lerobot/.venv/bin/python"
+      }
+    }
+  }
+}

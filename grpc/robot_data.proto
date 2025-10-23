@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package robot;
+
+// Service for streaming robot data
+service RobotDataStream {
+  rpc StreamData(stream RobotReading) returns (stream RobotResponse);
+}
+
+// Message representing a single robot reading
+message RobotReading {
+  double timestamp = 1;
+  string robot_type = 2;
+  string device_id = 3;
+  map<string, float> state = 4;  // Normalized state data (position, velocity, etc.) - all values normalized to range [0.0, 1.0]
+  bytes raw_data = 5;            // Raw data if needed
+}
+
+// Response from server
+message RobotResponse {
+  bool success = 1;
+  string message = 2;
+}
+

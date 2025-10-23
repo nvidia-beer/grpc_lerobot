@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robot Teleoperator Monitor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .status.connected {
+            background: #10b981;
+            color: white;
+        }
+        
+        .status.disconnected {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .status.waiting {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        .info-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .calibration-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            /* display: none; */ /* Hidden by default, shown when calibration data is received */
+        }
+        
+        .calibration-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .calibration-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        
+        .calibration-item {
+            background: #f3f4f6;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .calibration-joint {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+        
+        .calibration-range {
+            font-size: 0.9em;
+            color: #6b7280;
+        }
+        
+        .info-item {
+            text-align: center;
+            padding: 15px;
+            background: #f3f4f6;
+            border-radius: 10px;
+        }
+        
+        .info-label {
+            font-size: 0.9em;
+            color: #6b7280;
+            margin-bottom: 5px;
+        }
+        
+        .info-value {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #667eea;
+            word-break: break-word;
+        }
+        
+        .state-container {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 20px;
+        }
+        
+        @media (max-width: 1400px) {
+            .state-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        .state-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .state-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        
+        .state-header {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e5e7eb;
+            word-break: break-word;
+        }
+        
+        .state-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #1f2937;
+            text-align: center;
+        }
+        
+        .state-bar {
+            width: 100%;
+            height: 12px;
+            background: #e5e7eb;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 10px;
+            position: relative;
+        }
+        
+        .state-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+            min-width: 2px;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 60px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            color: #6b7280;
+            font-size: 1.2em;
+        }
+        
+        .raw-data-section {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-top: 30px;
+        }
+        
+        .raw-data-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .raw-data-content {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            max-height: 400px;
+            overflow-y: auto;
+            color: #374151;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .state-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .state-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🤖 Robot Teleoperator Monitor</h1>
+            <div id="status" class="status waiting">Waiting for connection...</div>
+        </header>
+        
+        <div class="info-panel">
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Robot Type</div>
+                    <div id="robot-type" class="info-value">N/A</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Device ID</div>
+                    <div id="device-id" class="info-value">N/A</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Last Update</div>
+                    <div id="timestamp" class="info-value">N/A</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">State Variables</div>
+                    <div id="state-count" class="info-value">0</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Update Rate</div>
+                    <div id="update-rate" class="info-value">0 Hz</div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="calibration-panel" class="calibration-panel">
+            <div class="calibration-title">🎯 Joint Calibration</div>
+            <div id="calibration" class="calibration-grid"></div>
+        </div>
+        
+        <div id="state" class="state-container">
+            <div class="no-data">
+                <p>📡 Waiting for robot data...</p>
+                <p style="margin-top: 10px; font-size: 0.9em;">Make sure the client is running and connected to the robot device.</p>
+            </div>
+        </div>
+        
+        <div class="raw-data-section" id="raw-data-section">
+            <div class="raw-data-title">📊 Raw State Data (Normalized [0.0 - 1.0])</div>
+            <div class="raw-data-content" id="raw-data"></div>
+        </div>
+    </div>
+    
+    <script>
+        let lastUpdateTime = Date.now();
+        let updateCount = 0;
+        let updateRate = 0;
+        let calibrationData = {};
+        
+        // Connect to Server-Sent Events stream
+        const eventSource = new EventSource('/stream');
+        
+        eventSource.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            updateDisplay(data);
+            
+            // Calculate update rate
+            const now = Date.now();
+            const elapsed = (now - lastUpdateTime) / 1000;
+            if (elapsed > 1) {
+                updateRate = updateCount / elapsed;
+                lastUpdateTime = now;
+                updateCount = 0;
+            }
+            updateCount++;
+        };
+        
+        eventSource.onerror = function(error) {
+            console.error('EventSource error:', error);
+            document.getElementById('status').textContent = 'Connection Error';
+            document.getElementById('status').className = 'status disconnected';
+        };
+        
+        function updateDisplay(data) {
+            // Debug: log sample of incoming data
+            if (data.state && Object.keys(data.state).length > 0) {
+                const firstKey = Object.keys(data.state)[0];
+                console.log(`Sample: ${firstKey} = ${data.state[firstKey]}`);
+            }
+            
+            // Update status
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = data.connection_status;
+            
+            if (data.connection_status === 'Connected') {
+                statusEl.className = 'status connected';
+            } else if (data.connection_status === 'Disconnected') {
+                statusEl.className = 'status disconnected';
+            } else {
+                statusEl.className = 'status waiting';
+            }
+            
+            // Update info panel
+            document.getElementById('robot-type').textContent = data.robot_type || 'N/A';
+            document.getElementById('device-id').textContent = data.device_id || 'N/A';
+            document.getElementById('timestamp').textContent = data.timestamp_str || 'N/A';
+            document.getElementById('state-count').textContent = data.state ? Object.keys(data.state).length : 0;
+            document.getElementById('update-rate').textContent = updateRate.toFixed(1) + ' Hz';
+            
+            // Update calibration display
+            if (data.calibration && Object.keys(data.calibration).length > 0) {
+                updateCalibration(data.calibration);
+            }
+            
+            // Update state display
+            if (data.state && Object.keys(data.state).length > 0) {
+                updateState(data.state);
+                updateRawData(data.state);
+            }
+        }
+        
+        function updateCalibration(calibration) {
+            const panel = document.getElementById('calibration-panel');
+            const container = document.getElementById('calibration');
+            
+            // Store calibration data globally for use in normalization
+            calibrationData = calibration;
+            
+            panel.style.display = 'block';
+            container.innerHTML = '';
+            
+            const sortedJoints = Object.keys(calibration).sort();
+            
+            sortedJoints.forEach(jointName => {
+                const range = calibration[jointName];
+                const item = document.createElement('div');
+                item.className = 'calibration-item';
+                item.innerHTML = `
+                    <div class="calibration-joint">${escapeHtml(jointName)}</div>
+                    <div class="calibration-range">Min: ${range.min}</div>
+                    <div class="calibration-range">Max: ${range.max}</div>
+                `;
+                container.appendChild(item);
+            });
+        }
+        
+        function updateState(state) {
+            const container = document.getElementById('state');
+            const stateKeys = Object.keys(state).sort();
+            
+            // Clear "no data" message if present
+            if (container.querySelector('.no-data')) {
+                container.innerHTML = '';
+            }
+            
+            // Detect number of servos from state keys (e.g., position_0, position_1, ...)
+            const servoIndices = new Set();
+            stateKeys.forEach(key => {
+                const match = key.match(/_(\d+)$/);
+                if (match) {
+                    servoIndices.add(parseInt(match[1]));
+                }
+            });
+            const numServos = servoIndices.size || 6; // Default to 6 if not detected
+            
+            // Adjust grid columns based on number of servos
+            if (window.innerWidth > 1400) {
+                container.style.gridTemplateColumns = `repeat(${numServos}, 1fr)`;
+            }
+            
+            // Create or update state cards
+            const existingCards = {};
+            Array.from(container.children).forEach(card => {
+                const key = card.dataset.key;
+                existingCards[key] = card;
+            });
+            
+            stateKeys.forEach(key => {
+                const value = state[key];
+                
+                if (existingCards[key]) {
+                    // Update existing card
+                    updateStateCard(existingCards[key], key, value);
+                } else {
+                    // Create new card
+                    container.appendChild(createStateCard(key, value));
+                }
+            });
+            
+            // Remove cards for keys that no longer exist
+            Object.keys(existingCards).forEach(key => {
+                if (!stateKeys.includes(key)) {
+                    existingCards[key].remove();
+                }
+            });
+        }
+        
+        function createStateCard(key, value) {
+            const card = document.createElement('div');
+            card.className = 'state-card';
+            card.dataset.key = key;
+            
+            card.innerHTML = `
+                <div class="state-header">${escapeHtml(key)}</div>
+                <div class="state-value" data-value>${formatValue(value)}</div>
+                <div class="state-bar">
+                    <div class="state-bar-fill" data-bar style="width: 50%"></div>
+                </div>
+            `;
+            
+            return card;
+        }
+        
+        function updateStateCard(card, key, value) {
+            const valueElement = card.querySelector('[data-value]');
+            const barElement = card.querySelector('[data-bar]');
+            
+            if (valueElement) {
+                valueElement.textContent = formatValue(value);
+            }
+            
+            // Update progress bar based on value (normalize to 0-100)
+            const normalized = normalizeValue(value, key);
+            
+            if (barElement) {
+                barElement.style.width = normalized + '%';
+            }
+        }
+        
+        function formatValue(value) {
+            if (typeof value === 'number') {
+                return value.toFixed(3);
+            }
+            return String(value);
+        }
+        
+        function normalizeValue(value, key) {
+            // Values are already normalized to [0, 1] by the client
+            // Just convert to percentage for progress bar
+            if (typeof value !== 'number') {
+                console.warn(`Non-numeric value for ${key}:`, value);
+                return 50;
+            }
+            
+            // Clamp to 0-1 range and convert to percentage
+            const normalized = Math.max(0, Math.min(1, value));
+            const percentage = normalized * 100;
+            
+            return percentage;
+        }
+        
+        function updateRawData(state) {
+            const section = document.getElementById('raw-data-section');
+            const content = document.getElementById('raw-data');
+            
+            section.style.display = 'block';
+            content.textContent = JSON.stringify(state, null, 2);
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>

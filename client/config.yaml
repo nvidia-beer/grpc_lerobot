@@ -1,0 +1,25 @@
+# Robot Configuration File
+# This file defines which robot to use and how to configure it
+
+# Device identifier (will appear in web interface)
+device_id: "SO101_Leader_1"
+
+# Robot configuration
+robot:
+  # Robot type identifier (use so101_leader for leader arm, so101_follower for follower arm)
+  type: "so101_leader"
+  
+  # Python module path for the teleoperator class
+  module: "lerobot.teleoperators.so101_leader.so101_leader"
+  
+  # Class name to instantiate
+  class: "SO101Leader"
+  
+  # Initialization parameters passed to the class constructor
+  # Note: Only parameters accepted by the robot's Config class are used
+  # Common parameters: port, use_degrees (default: False)
+  params:
+    port: "/dev/ttyACM0"
+
+
+
