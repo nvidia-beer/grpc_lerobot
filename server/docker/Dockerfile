@@ -12,6 +12,11 @@ RUN pip install --no-cache-dir -r /tmp/requirements.txt
 # Set working directory
 WORKDIR /workspace
 
+# Copy entrypoint script
+COPY server/docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 # The actual files will be mounted as volumes
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["python3", "server/ui_server.py"]
 
