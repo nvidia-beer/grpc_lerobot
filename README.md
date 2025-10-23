@@ -64,12 +64,16 @@ Beautiful real-time visualization with Server-Sent Events
 # Connect to remote server
 ./grpc-lerobot-client.sh --server 192.168.1.100:50051
 
+# Connect to AWS EC2 instance with Elastic IP
+./grpc-lerobot-client.sh --server ec2-X-X-X-X.compute-1.amazonaws.com:50051
+
 # Run without hardware (debug mode with simulated joints)
 ./grpc-lerobot-client.sh --debug-joints gripper shoulder_pan elbow
 ```
 
 > **✅ What happens:** Loads calibration, connects to robot at `/dev/ttyACM0`, streams at 30 Hz  
-> **🧪 Debug mode:** Simulates robot data for testing without hardware (specify which joints should move)
+> **🧪 Debug mode:** Simulates robot data for testing without hardware (specify which joints should move)  
+> **☁️ AWS EC2:** Replace `X-X-X-X` with your Elastic IP address. Ensure security group allows inbound traffic on port 50051.
 
 ---
 
