@@ -13,7 +13,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 WORKDIR /workspace
 
 # Copy entrypoint script
-COPY --chmod=755 server/docker/entrypoint.sh /entrypoint.sh
+COPY server/docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 # Files will be mounted as volumes at runtime
 ENTRYPOINT ["/entrypoint.sh"]
