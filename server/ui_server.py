@@ -142,7 +142,7 @@ def serve_grpc(port=50051):
     return server
 
 
-def serve_web(host='0.0.0.0', port=8070):
+def serve_web(host='0.0.0.0', port=8080):
     """Start Flask web server"""
     logger.info(f"Web UI available at http://{host}:{port}")
     app.run(host=host, port=port, debug=False, threaded=True)
@@ -153,7 +153,7 @@ def main():
     
     parser = argparse.ArgumentParser(description='Robot gRPC Server with Web UI')
     parser.add_argument('--grpc-port', type=int, default=50051, help='gRPC port (default: 50051)')
-    parser.add_argument('--web-port', type=int, default=8070, help='Web server port (default: 8070)')
+    parser.add_argument('--web-port', type=int, default=8080, help='Web server port (default: 8080)')
     parser.add_argument('--host', default='0.0.0.0', help='Web server host (default: 0.0.0.0)')
     args = parser.parse_args()
     

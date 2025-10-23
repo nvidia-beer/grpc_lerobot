@@ -3,7 +3,7 @@ set -e
 
 # Configuration
 GRPC_PORT="${1:-50051}"
-WEB_PORT="${2:-8070}"
+WEB_PORT="${2:-8080}"
 CONTAINER_NAME="grpc-lerobot-server"
 
 # Go to project root

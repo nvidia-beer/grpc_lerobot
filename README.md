@@ -46,14 +46,14 @@ Beautiful real-time visualization with Server-Sent Events
 ### Start the Server
 
 ```bash
-# Default ports (gRPC: 50051, Web: 8070)
+# Default ports (gRPC: 50051, Web: 8080)
 ./grpc-lerobot-server.sh
 
 # Custom ports
-./grpc-lerobot-server.sh 50052 8080
+./grpc-lerobot-server.sh 50052 8090
 ```
 
-> **🌐 Access the web dashboard at:** http://localhost:8070
+> **🌐 Access the web dashboard at:** http://localhost:8080
 
 ### Start the Client
 
@@ -145,7 +145,7 @@ BUSID  VID:PID    DEVICE                                    STATE
 | Parameter | Default | Description |
 |-----------|---------|-------------|
 | `GRPC_PORT` | `50051` | gRPC server port |
-| `WEB_PORT` | `8070` | Web UI port |
+| `WEB_PORT` | `8080` | Web UI port |
 
 ### Client Launcher Options
 
@@ -322,7 +322,7 @@ python client/robot_calibrate.py --config client/config.yaml --output ./calibrat
 docker build -t grpc-lerobot-server -f server/docker/Dockerfile .
 
 docker run --network=host grpc-lerobot-server \
-    python server/ui_server.py --grpc-port 50051 --web-port 8070
+    python server/ui_server.py --grpc-port 50051 --web-port 8080
 ```
 
 </details>

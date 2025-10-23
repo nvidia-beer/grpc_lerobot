@@ -5,14 +5,14 @@ Run the gRPC server with Web UI in Docker.
 ## Quick Start
 
 ```bash
-# Default ports (gRPC: 50051, Web: 8070)
+# Default ports (gRPC: 50051, Web: 8080)
 ./grpc-server.sh
 
 # Custom ports
-./grpc-server.sh 50052 8080
+./grpc-server.sh 50052 8090
 ```
 
-Access Web UI at `http://localhost:8070`
+Access Web UI at `http://localhost:8080`
 
 ## Files
 
